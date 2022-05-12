@@ -20,7 +20,7 @@ def get_citation_ids(pmid):
 def pubmed_id_to_xml(pubmed_id):
     '''
     parameter: pubmed_id
-    writes the esummary of the pubmed_id to an xml file
+    writes the abstract of the pubmed_id to an xml file
     '''
     # handle = Entrez.esummary(db="nucleotide", id=pubmed_id, rettype="Abstract", retmode="xml")
     handle = Entrez.efetch(db='pubmed', id=pubmed_id, retmode='xml', rettype='Abstract')
