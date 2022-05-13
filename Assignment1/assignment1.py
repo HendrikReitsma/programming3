@@ -26,9 +26,9 @@ def pubmed_id_to_xml(pubmed_id):
     handle = Entrez.efetch(db='pubmed', id=pubmed_id, retmode='xml', rettype='Abstract')
     records = handle.readlines()
     handle.close()
-    with open('output/'+str(pubmed_id)+'.xml', 'w') as f:
+    with open('output/'+str(pubmed_id)+'.xml', 'wb') as f:
         for line in records:
-            f.write(str(line))
+            f.write((line))
     return True
 
 def main():
