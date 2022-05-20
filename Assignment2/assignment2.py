@@ -165,7 +165,7 @@ def extract_authors(pubmed_id):
 def write_authors_to_pickle(pubmed_id):
     authors = extract_authors(pubmed_id)
     with open(f"output/{pubmed_id}.authors.pickle", 'wb') as f:
-    # with open('/output/' + pubmed_id + '.pickle', 'wb') as f:
+    # with open('/output/' + pubmed_id + '.authors.pickle', 'wb') as f:
         pickle.dump(authors, f)
     return True
 
@@ -180,6 +180,8 @@ def get_citation_ids(pubmed_id):
                                     id=pubmed_id,
                                     api_key='cc90e8524a1e6db189cc428e8ddb8a862208'))
         references = [f'{link["Id"]}' for link in results[0]["LinkSetDb"][0]["Link"]]
+        # references = [link["Id"] for link in results[0]["LinkSetDb"][0]["Link"]]
+        # print(references)
         return references
 
 # IP = ''
@@ -219,25 +221,25 @@ def main():
         server.start()
         server.join()
     time.sleep(1)
-    print(args)
-    if args.s=="-s":
-        argparser = ap.ArgumentParser(description="Script that downloads (default) 10 articles referenced by the given PubMed ID concurrently.")
+    # print(args)
+    # if args.s=="-s":
+    #     argparser = ap.ArgumentParser(description="Script that downloads (default) 10 articles referenced by the given PubMed ID concurrently.")
 
-        argparser.add_argument("pubmed_id", action="store", type=str, nargs=1, help="Pubmed ID of the article to harvest for references to download.")
+    #     argparser.add_argument("pubmed_id", action="store", type=str, nargs=1, help="Pubmed ID of the article to harvest for references to download.")
        
-        file = Path("/output")
-        if not file.is_dir():
-              os.mkdir(file)
-        server = mp.Process(target=runserver, args=(write_authors_to_pickle, references))
-        server.start()
-        time.sleep(1)
-        server.join()
+    #     file = Path("/output")
+    #     if not file.is_dir():
+    #           os.mkdir(file)
+    #     server = mp.Process(target=runserver, args=(write_authors_to_pickle, references))
+    #     server.start()
+    #     time.sleep(1)
+    #     server.join()
     
-    elif args=="-c": 
-      cpus = mp.cpu_count()
-      client = mp.Process(target=runclient, args=(args.port, cpus,))
-      client.start()
-      client.join()
+    # elif args=="-c": 
+    #   cpus = mp.cpu_count()
+    #   client = mp.Process(target=runclient, args=(args.port, cpus,))
+    #   client.start()
+    #   client.join()
 # usage: assignment2.py [-h] [-n N] [-c | -s] [-a A] --port PORT --host HOST pubmed_id
 
 
