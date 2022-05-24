@@ -250,13 +250,6 @@ def main():
         server.join()
     time.sleep(1)
 
-    # Do the xml thing
-    # cpus = mp.cpu_count()
-    # for reference in references[:10]:
-    #     pubmed_id_to_xml(reference)
-    # with mp.Pool(cpus) as pool:
-    #     pool.map(pubmed_id_to_xml, references[:10])
-
 if __name__ == '__main__':  
     # assignment2.py -n <number_of_peons_per_client> [-c | -s] --port <portnumber> --host <serverhost> -a <number_of_articles_to_download> STARTING_PUBMED_ID
     main()
