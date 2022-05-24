@@ -18,7 +18,6 @@ AUTHKEY = b'whathasitgotinitspocketsesss?'
 # It should save the authors in a Python tuple and use the Pickle module to save it to the disk as 
 # output/PUBMED_ID.authors.pickle where PUBMEDID is of course the pubmed ID of the article in question.
 
-
 def make_server_manager(port, authkey, ip):
     """ Create a manager for the server, listening on the given port.
         Return a manager object with get_job_q and get_result_q methods.
