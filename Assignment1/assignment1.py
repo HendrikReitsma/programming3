@@ -1,6 +1,8 @@
-from Bio import Entrez
 import sys
+from Bio import Entrez
+from pathlib import Path
 import multiprocessing as mp
+
 Entrez.api_key = "cc90e8524a1e6db189cc428e8ddb8a862208"
 Entrez.email = 'h.reitsma@st.hanze.nl'
 
@@ -31,20 +33,25 @@ def pubmed_id_to_xml(pubmed_id):
             f.write((line))
     return True
 
+def make_output_dir(output_dir):
+    try:
+        if not(output_dir.exists()):
+            print('inside the if statement')
+            output_dir.mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        pass
+    return
+
 def main():
+    ## Output path
+    cwd = Path(__file__).parent.absolute()
+    print(cwd)
+    output_dir = cwd/'output'
+    print(output_dir)
+    make_output_dir(output_dir)
     pmid = sys.argv[1]
     # pmid = '19304878'
     cpus = mp.cpu_count()
-    # record = Entrez.read(Entrez.elink(dbfrom="pubmed", id=pmid))
-    ## Get the related ID's:
-    # related_ids = []
-    # results = Entrez.read(Entrez.elink(dbfrom="pubmed", id=pmid))
-    # related_ids = [link["Id"] for link in results[0]["LinkSetDb"][5]["Link"]]
-    # related_ids = related_ids[:10]
-    # for i in range(1,11):
-    #     related_id = record[0]["LinkSetDb"][5]["Link"][i]['Id']
-    #     related_ids.append(int(related_id))
-    # print(related_ids)
     references = get_citation_ids(pmid)
     with mp.Pool(cpus) as pool:
         pool.map(pubmed_id_to_xml, references[:10])

@@ -7,6 +7,7 @@ from multiprocessing.managers import BaseManager, SyncManager
 import os, sys, time, queue
 from pathlib import Path
 
+
 Entrez.api_key = "cc90e8524a1e6db189cc428e8ddb8a862208"
 Entrez.email = 'h.reitsma@st.hanze.nl'
 POISONPILL = "MEMENTOMORI"
@@ -190,6 +191,16 @@ def get_citation_ids(pubmed_id):
 # IP = ''
 # PORTNUM = 8888
 
+def make_output_dir(output_dir):
+    try:
+        if not(output_dir.exists()):
+            print('inside the if statement')
+            output_dir.mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        pass
+    return
+
+
 def main():
     # Arguments
     argparser = ap.ArgumentParser(description="Script that downloads (default) 10 articles referenced by the given PubMed ID concurrently.")
@@ -208,9 +219,14 @@ def main():
     args = argparser.parse_args()
     print("Getting: ", args.pubmed_id)
 
+    ## Output path
+    cwd = Path(__file__).parent.absolute()
+    print(cwd)
+    output_dir = cwd/'output'
+    print(output_dir)
+    make_output_dir(output_dir)
+
     # pubmed_id = '30049270'
-
-
     ## Get references
     references = get_citation_ids(args.pubmed_id)[:args.a]
 
