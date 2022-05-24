@@ -196,6 +196,18 @@ def make_output_dir(output_dir):
         pass
     return
 
+def pubmed_id_to_xml(pubmed_id):
+    '''
+    parameter: pubmed_id
+    writes the abstract of the pubmed_id to an xml file
+    '''
+    handle = Entrez.efetch(db='pubmed', id=pubmed_id, retmode='xml', rettype='Abstract')
+    records = handle.readlines()
+    handle.close()
+    with open('output/'+str(pubmed_id)+'.xml', 'wb') as f:
+        for line in records:
+            f.write((line))
+    return True
 
 def main():
     # Arguments
@@ -225,6 +237,11 @@ def main():
     # pubmed_id = '30049270'
     ## Get references
     references = get_citation_ids(args.pubmed_id)[:args.a]
+
+    ## Do the xml thing
+    cpus = mp.cpu_count()
+    with mp.Pool(cpus) as pool:
+        pool.map(pubmed_id_to_xml, references[:10])
 
     if args.client:
         client = mp.Process(target=runclient, args=(4, args.host, args.port))
