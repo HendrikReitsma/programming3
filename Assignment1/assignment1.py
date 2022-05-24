@@ -24,7 +24,6 @@ def pubmed_id_to_xml(pubmed_id):
     parameter: pubmed_id
     writes the abstract of the pubmed_id to an xml file
     '''
-    # handle = Entrez.esummary(db="nucleotide", id=pubmed_id, rettype="Abstract", retmode="xml")
     handle = Entrez.efetch(db='pubmed', id=pubmed_id, retmode='xml', rettype='Abstract')
     records = handle.readlines()
     handle.close()
@@ -55,7 +54,6 @@ def main():
     references = get_citation_ids(pmid)
     with mp.Pool(cpus) as pool:
         pool.map(pubmed_id_to_xml, references[:10])
-    print(references)
 
 if __name__ == '__main__':
     main()
