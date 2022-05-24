@@ -55,6 +55,7 @@ def main():
     references = get_citation_ids(pmid)
     with mp.Pool(cpus) as pool:
         pool.map(pubmed_id_to_xml, references[:10])
+    print(references)
 
 if __name__ == '__main__':
     main()
