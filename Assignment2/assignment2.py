@@ -188,9 +188,6 @@ def get_citation_ids(pubmed_id):
         # print(references)
         return references
 
-# IP = ''
-# PORTNUM = 8888
-
 def make_output_dir(output_dir):
     try:
         if not(output_dir.exists()):
@@ -241,28 +238,6 @@ def main():
         time.sleep(1)
         server.join()
     time.sleep(1)
-    # print(args)
-    # if args.s=="-s":
-    #     argparser = ap.ArgumentParser(description="Script that downloads (default) 10 articles referenced by the given PubMed ID concurrently.")
-
-    #     argparser.add_argument("pubmed_id", action="store", type=str, nargs=1, help="Pubmed ID of the article to harvest for references to download.")
-       
-    #     file = Path("/output")
-    #     if not file.is_dir():
-    #           os.mkdir(file)
-    #     server = mp.Process(target=runserver, args=(write_authors_to_pickle, references))
-    #     server.start()
-    #     time.sleep(1)
-    #     server.join()
-    
-    # elif args=="-c": 
-    #   cpus = mp.cpu_count()
-    #   client = mp.Process(target=runclient, args=(args.port, cpus,))
-    #   client.start()
-    #   client.join()
-# usage: assignment2.py [-h] [-n N] [-c | -s] [-a A] --port PORT --host HOST pubmed_id
-
-
 
 if __name__ == '__main__':  
     # assignment2.py -n <number_of_peons_per_client> [-c | -s] --port <portnumber> --host <serverhost> -a <number_of_articles_to_download> STARTING_PUBMED_ID
