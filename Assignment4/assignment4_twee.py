@@ -9,14 +9,14 @@ df["n50"] =  pd.to_numeric(df["n50"])
 i = np.max(list(df["n50"]))
 best = df[df["n50"] == i]
 best_n50 = best.iloc[0,1]
-best_dir = str(best.iloc[0,0])
-sentence = f"the best n50 is {best_n50} and best kmer is {best_dir}."
+best_kmer = str(best.iloc[0,0])
+result = f"N50: {best_n50} kmer: {best_kmer}."
 x = []
-x.append(sentence)
+x.append(result)
 with open("output/final.csv", "a") as f:
     writer = csv.writer(f)
     writer.writerow(x)
-source= r'{}/contigs.fa'.format(best_dir)
+source= r'{}/contigs.fa'.format(best_kmer)
 destination= r"output/"
 sh.copy(source,destination)
 del_list = list(df['dir'])
