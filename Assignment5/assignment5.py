@@ -1,14 +1,10 @@
+import csv
 import pyspark
 import findspark
-from pyspark.sql import SparkSession, SQLContext, Row
-from pyspark import SparkContext, SparkConf
-from pyspark.sql.types import StructType, StructField, IntegerType
-from pyspark.sql.functions import avg, col, mean, avg, countDistinct, desc, split, explode
 import pyspark.sql.functions
-import csv
+from pyspark.sql import SparkSession, SQLContext, Row
+from pyspark.sql.functions import col, desc, split, explode, mean, count
 
-# ---------------------------------------------------------------Read the Data -------------------------------------------------------------------------
-findspark.init()
 findspark.find()
 conf = pyspark.SparkConf().setAppName("hendrik").setMaster('local[16]')
 sc = pyspark.SparkContext(conf=conf)
@@ -16,8 +12,8 @@ spark = SparkSession(sc)
 sql_c = SQLContext(sc)
 df = sql_c.read.csv('/data/dataprocessing/interproscan/all_bacilli.tsv',header=False, sep="\t")
 df = df.toDF('protein_accession', 
-              'Sequence', 
-              'Sequence_len', 
+              'Seq', 
+              'Seq_len', 
               'Analysis', 
               'Signature_accession', 
               'Signature_description', 
@@ -36,7 +32,6 @@ df = df.withColumn('diff_length', ( df["Stop"] - df["Start"]) )
 
 q1 = df.filter(df.InterPro_accession != '-').groupby('InterPro_accession').count().count()
 q1_ex = str(df.groupby('InterPro_accession').count()._sc._jvm.PythonSQLUtils.explainString(df.groupby('InterPro_accession').count()._jdf.queryExecution(),'simple'))
-
 
 q2 = df.filter(df.InterPro_accession != '-').groupBy('protein_accession').count().summary().collect()[1][2]
 explain_2 = df.filter(df.InterPro_accession != '-').groupBy('protein_accession').count().summary()
@@ -100,11 +95,11 @@ for i in top_10_inter.filter(top_10_inter.interPro_description != '-').withColum
 explain_9 = top_10_inter.filter(top_10_inter.interPro_description != '-').withColumn('word',explode(split(col('interPro_description'), ' '))).groupby('word').count().sort(desc('count'))
 q9_ex = str(explain_9._sc._jvm.PythonSQLUtils.explainString(explain_9._jdf.queryExecution(),'simple'))
 
-
-q10 = df.filter(df.InterPro_accession != '-').groupby(['protein_accession', 'Seq_len']).count().corr('count', 'Seq_len')
-explain_10 =  df.filter(df.InterPro_accession != '-').groupby(['protein_accession', 'Seq_len']).count()
-q10_ex = str(explain_10._sc._jvm.PythonSQLUtils.explainString(explain_10._jdf.queryExecution(),'simple'))
-
+def question10():
+    q10 = df.filter(df.InterPro_accession != '-').groupby('protein_accession').agg(mean('Seq_len'), count('InterPro_accession'))
+    q10_ex = q10._sc._jvm.PythonSQLUtils.explainString(q10._jdf.queryExecution(), 'simple')
+    q10 = q10.corr("avg(Seq_len)", "count(InterPro_accession)")
+    return q10, q10_ex
 sc.stop()
 
 header = ['Questions', 'Answer', '.explain']
