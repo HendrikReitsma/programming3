@@ -95,11 +95,11 @@ for i in top_10_inter.filter(top_10_inter.interPro_description != '-').withColum
 explain_9 = top_10_inter.filter(top_10_inter.interPro_description != '-').withColumn('word',explode(split(col('interPro_description'), ' '))).groupby('word').count().sort(desc('count'))
 q9_ex = str(explain_9._sc._jvm.PythonSQLUtils.explainString(explain_9._jdf.queryExecution(),'simple'))
 
-def question10():
-    q10 = df.filter(df.InterPro_accession != '-').groupby('protein_accession').agg(mean('Seq_len'), count('InterPro_accession'))
-    q10_ex = q10._sc._jvm.PythonSQLUtils.explainString(q10._jdf.queryExecution(), 'simple')
-    q10 = q10.corr("avg(Seq_len)", "count(InterPro_accession)")
-    return q10, q10_ex
+
+q10 = df.filter(df.InterPro_accession != '-').groupby('protein_accession').agg(mean('Seq_len'), count('InterPro_accession'))
+q10_ex = q10._sc._jvm.PythonSQLUtils.explainString(q10._jdf.queryExecution(), 'simple')
+q10 = q10.corr("avg(Seq_len)", "count(InterPro_accession)")
+    
 sc.stop()
 
 header = ['Questions', 'Answer', '.explain']
