@@ -1,15 +1,15 @@
-import pandas as pd
-import lxml.etree as ET
-import glob
-from multiprocessing import Pool, cpu_count
-import os
+"""
+Script that parses xml files to pickle
+Author: Hendrik Reitsma
+"""
 
+import os
 import glob
-import pandas as pd
 import argparse as ap
 import multiprocessing as mp
 import xml.etree.ElementTree as ET
-from sqlalchemy import true
+import pandas as pd
+
 
 def parse_pubmed_xml(file_path):
     articles = {}
@@ -86,13 +86,6 @@ def get_keywords(article):
             keywords.append(keyword.text)
     return keywords
 
-def run_mp(files):
-    # Function that does the multiprocessing.
-    cpus = args.cpu
-    with mp.Pool(cpus) as pool:
-        results = pool.map(process_file, files)
-
-
 def process_file(xml_file):
     # Parse the XML file and extract the relevant information
     record_df = parse_pubmed_xml(xml_file)
@@ -100,6 +93,12 @@ def process_file(xml_file):
     csv_file = os.path.splitext(xml_file)[0] + ".pkl"
     print(csv_file)
     record_df.to_csv(f'picklefiles/{csv_file}')
+
+def run_mp(files):
+    # Function that does the multiprocessing.
+    cpus = args.cpu
+    with mp.Pool(cpus) as pool:
+        results = pool.map(process_file, files)
 
 if __name__ == "__main__":
 
