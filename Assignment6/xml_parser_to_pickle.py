@@ -11,35 +11,50 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 
 
-def parse_pubmed_xml(file_path):
+def parse_pubmed_xml(file_path)
+    """
+    Parses a Pubmed XML file into a pandas DataFrame.
+    
+    Args:
+        file_path (str): Path to the Pubmed XML file.
+    
+    Returns:
+        pd.DataFrame: DataFrame with columns for main_author, authors, references, 
+                      publication_year, and keywords.
+    """
     articles = {}
     root = ET.parse(file_path).getroot()
-    # count = 0  # Counter to keep track of how many articles have been processed
     
     for article in root.findall('PubmedArticle'):
-        # if count >= 5:  # If we have processed 5 articles, break out of the loop
-        #     break
         pmid = article.find('MedlineCitation').find('PMID').text
         
-        authors = get_authors(article)
+        authors = extract_authors(article)
         try:
             main_author = authors[0]
         except:
             main_author = ''
-        # print('got authors')
-        references = get_references(article)
-        # print('got references')
+        
+        references = extract_references(article)
         publication_year = get_publication_year(article)
-        # print('got publication year')
         keywords = get_keywords(article)
-        # print('got keywords')
+        
         articles[pmid] = (main_author, authors, references, publication_year, keywords)
-        # count += 1  # Increment the counter
-        record_df = pd.DataFrame.from_dict(articles, orient='index', columns=['main_author', 'authors', 'references', 'publication_year', 'keywords'])
+    
+    record_df = pd.DataFrame.from_dict(articles, orient='index', 
+                                        columns=['main_author', 'authors', 'references', 
+                                                 'publication_year', 'keywords'])
+
     return record_df
 
-def get_authors(article):
-    """Extract the authors from the given article element and return them as a list."""
+def extract_authors(article):
+    """Extracts authors from the given article element.
+
+    Args:
+        article (Element): An Element object representing an article.
+
+    Returns:
+        list: A list of authors as strings.
+    """
     authors = []
     for author_list in article.find('MedlineCitation').find('Article').findall('AuthorList'):
         for author in author_list.findall('Author'):
@@ -52,24 +67,39 @@ def get_authors(article):
             authors.append(author_str)
     return authors
 
-def get_references(article):
-    """Extract the PubMed IDs of the references for the given article element and return them as a list."""
+def extract_references(article):
+    """
+    Extract the PubMed IDs of the references for the given article element and return them as a list.
+
+    Args:
+        article (Element): The article element to extract the references from.
+
+    Returns:
+        list: A list of PubMed IDs of the references for the given article element.
+    """
     references = []
     reference_list = article.find('PubmedData').find('ReferenceList')
-    # print(reference_list)
-    if reference_list is not None:  # Check whether the References element exists
+    if reference_list is not None:
         for reference in reference_list.findall('Reference'):
-            # Extract the PubMed ID of the reference from the PMID element
             if reference.find('ArticleIdList') is not None:
                 article_id_list = reference.find('ArticleIdList')
                 if article_id_list.find('ArticleId') is not None:
                     ref = article_id_list.find('ArticleId').text
-                # Add the PubMed ID to the list
                 references.append(ref)
 
     return references
 
 def get_publication_year(article):
+    """
+    Extract the publication year from the given article element and return it as a string.
+
+    Args:
+        article (Element): An ElementTree Element representing an article in PubMed XML format.
+
+    Returns:
+        str: The publication year as a four-digit string, or None if it cannot be extracted.
+
+    """
     pub_date = article.find('MedlineCitation').find('Article').find('Journal').find('JournalIssue').find('PubDate')
     if pub_date is not None:
         year_element = pub_date.find('Year')
@@ -78,7 +108,17 @@ def get_publication_year(article):
             return year
     return None
 
+
 def get_keywords(article):
+    """
+    Extract the keywords from the given article element and return them as a list.
+
+    Parameters:
+        article (Element): The Element object representing the article.
+
+    Returns:
+        list: A list of keywords.
+    """
     keywords = []
     keyword_list = article.find('MedlineCitation').find('KeywordList')
     if keyword_list is not None:
@@ -86,29 +126,35 @@ def get_keywords(article):
             keywords.append(keyword.text)
     return keywords
 
+
 def process_file(xml_file):
+    """
+    Extract relevant information from a Pubmed XML file, and save it as a pickled pandas DataFrame.
+
+    Args:
+        xml_file (str): The path to the input XML file.
+
+    Returns:
+        None
+    """
     # Parse the XML file and extract the relevant information
     record_df = parse_pubmed_xml(xml_file)
-    # Write the data to a CSV file
-    csv_file = os.path.splitext(xml_file)[0] + ".pkl"
-    print(csv_file)
-    record_df.to_csv(f'picklefiles/{csv_file}')
+    # Write the data to a pickle file
+    pickle_file = os.path.splitext(xml_file)[0] + ".pkl"
+    record_df.to_pickle(f'picklefiles/{pickle_file}')
 
-def run_mp(files):
-    # Function that does the multiprocessing.
+def run_mp(files, args):
+    # Multiprocessing function
     cpus = args.cpu
     with mp.Pool(cpus) as pool:
         results = pool.map(process_file, files)
 
 if __name__ == "__main__":
-
     argparser = ap.ArgumentParser(description=
-                                "Script that parses the xml files to create pubmedID with keyword, author and reference lists and saves them as a pickle")
+                                "Script that parses the xml files")
     argparser.add_argument("-cpu", action="store",
                             dest="cpu", required=True, type=int,
-                            help="Number of cpus to run with multiprocessing")
+                            help="Number of cpus")
     args = argparser.parse_args()
-
     xml_files = glob.glob("/data/datasets/NCBI/PubMed/*.xml")
-    
-    run_mp(xml_files)
+    run_mp(xml_files, args)
