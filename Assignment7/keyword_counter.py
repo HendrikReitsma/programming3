@@ -3,16 +3,9 @@ keyword_counter.py
 Script that counts keywords
 Author: Hendrik Reitsma
 """
-
-import os
-import glob
 import argparse as ap
-import multiprocessing as mp
 import xml.etree.ElementTree as ET
 import pandas as pd
-import time
-import os
-import subprocess
 
 class keywordCounter:
     def __init__(self, keywords):
@@ -24,7 +17,6 @@ class keywordCounter:
         keywords = []
         for article in root.findall('PubmedArticle'):
             keywords += self.get_keywords(article)
-        # print(f'keywords {keywords}')
         keyword_series = pd.Series(keywords, dtype='object')
         keyword_df = pd.DataFrame({'keyword': keyword_series.value_counts().index,
                                 'count': keyword_series.value_counts().values})
